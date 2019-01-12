@@ -1,4 +1,4 @@
-class Snake implements Comparable { //<>// //<>//
+class Snake implements Comparable { //<>//
   public PVector food;
   public int foodEaten;
   public int stepsTaken;
@@ -42,7 +42,7 @@ class Snake implements Comparable { //<>// //<>//
     closerDistanceToActualFood = Float.MAX_VALUE;
 
     body.clear();
-    body.add(new PVector((int)Math.floor((sideOfPlay)/2), (int)Math.floor((sideOfPlay)/2)));
+    body.add(new PVector((int)Math.floor((sideOfPlay-1)/2), (int)Math.floor((sideOfPlay-1)/2)));
     direction = new PVector(0, -1);
     prevDirection = direction.copy();
     body.add(PVector.sub(body.get(0), direction));
@@ -52,7 +52,7 @@ class Snake implements Comparable { //<>// //<>//
     brain = new Brain(new ArrayList < Integer >() {
       {
         add((int)Math.pow(sideOfPlay, 2));
-        add(10);
+        add(numberOfNodeInHL);
         add(4);
       }
     }
@@ -61,18 +61,24 @@ class Snake implements Comparable { //<>// //<>//
 
   void Think() {
     if (isDead == false) {
-      ArrayList<Float> inputs = new ArrayList<Float>();
-
-      //Aggiungo i delta dal muro
+      ArrayList<Double> inputs = new ArrayList<Double>();
+      
       for (int i = 0; i < Math.pow(sideOfPlay, 2); i++) {
-        inputs.add(0f);
+        inputs.add(0d);
       }
+      
       for (PVector p : body) {
         int index = (int)p.x + (int)p.y * sideOfPlay;
-        inputs.set(index, 0.1f);
+        if (p.x < 0 || p.y < 0) {
+          for (int i = 0; i < body.size(); i++) {
+            println("X: " + body.get(i).x + " Y: " + body.get(i).y);
+          }
+        }
+        inputs.set(index, 0.1d);
       }
+      
       int _pos = (int)body.get(0).x + (int)body.get(0).y * sideOfPlay;
-      inputs.set(_pos, 1f);
+      inputs.set(_pos, 1d);
 
       food = foods.get(foodEaten);
       if (food.x < 0 || food.y < 0) {
@@ -80,14 +86,14 @@ class Snake implements Comparable { //<>// //<>//
       }
 
       int _food = (int)(food.x + food.y * sideOfPlay);
-      inputs.set(_food, 10f);
+      inputs.set(_food, 10d);
 
       brain.initiate(inputs);
       brain.calculate();
 
       //output
       int indexDirection = - 1;
-      float lastMax = Float.MIN_VALUE;
+      Double lastMax = Double.MIN_VALUE;
       for (int i = 0; i < brain.outputs.size(); i++) {
         if (brain.outputs.get(i) > lastMax) {
           lastMax = brain.outputs.get(i);
@@ -138,20 +144,31 @@ class Snake implements Comparable { //<>// //<>//
         return;
       }
 
+      boolean addFood = false;
+      PVector lastBody = null;
+      PVector prev = null;
       //modifica la posizione dei pezzi del corpo
-      for (int i = body.size() - 1; i >= 0; i--) {
+      for (int i = 0; i < body.size(); i++) {
         if (i == 0) {
+          prev = body.get(0).copy();
           body.get(0).add(direction);
+
+          if (PVector.dist(body.get(0), food) == 0) { 
+            addFood = true;
+            lastBody = body.get(body.size() - 1);
+          }
         } else {
-          PVector prev = body.get(i-1); 
-          body.set(i, prev.copy());
+          PVector tmp = prev.copy();
+          ;
+          prev = body.get(i).copy();
+          ;
+          body.set(i, tmp);
         }
       }
-      stepsTaken++;
 
-      if (PVector.dist(body.get(0), food) == 0) { 
+      if (addFood == true) {
         if (foodEaten < numberOfFoods) {
-          body.add(PVector.add(body.get(body.size() - 1), PVector.sub(body.get(body.size() - 1), body.get(body.size() - 2))));
+          body.add(lastBody);
 
           foodEaten++;
           stepsTaken = 0;
@@ -162,10 +179,9 @@ class Snake implements Comparable { //<>// //<>//
           isDead = true;
         }
       }
-
       prevDirection = direction;
+      stepsTaken++;
     }
-
     updateScore();
   }
 
@@ -185,8 +201,8 @@ class Snake implements Comparable { //<>// //<>//
       brain.inputs.add(_newN);
     }
 
-    brain.outputs = new ArrayList<Float>(s.brain.outputs.size());
-    for (Float n : s.brain.outputs) {
+    brain.outputs = new ArrayList<Double>(s.brain.outputs.size());
+    for (Double n : s.brain.outputs) {
       brain.outputs.add(n);
     }
 
@@ -206,20 +222,29 @@ class Snake implements Comparable { //<>// //<>//
   void Draw() {
     PVector _tmpPos = new PVector();
 
+    color bodyPiece;
+
     for (int i = 0; i < body.size(); i++) {
       if (isDead == false) {
         if (i == 0) {
-          fill(0, 128, 255);
+          bodyPiece = color(0, 128, 255);
         } else {
-          fill(0, 255, 0);
+          bodyPiece = color(0, 255, 0);
         }
       } else {
-        fill(128);
+        bodyPiece = color(128);
       }
 
       _tmpPos.x = body.get(i).x * sideOfASquare;
       _tmpPos.y = body.get(i).y * sideOfASquare;
+
+      fill(bodyPiece);
       rect(_tmpPos.x, _tmpPos.y, sideOfASquare, sideOfASquare);
+
+      if (i == 0) {
+        fill(0);
+        text(Math.round(score/pointsForFood), _tmpPos.x + sideOfASquare / 2, _tmpPos.y + sideOfASquare / 2 + 3);
+      }
     }
 
     fill(255, 0, 0);

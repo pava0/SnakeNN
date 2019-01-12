@@ -1,23 +1,24 @@
 import java.util.*;
 
-int windowSide = 200;
-int sideOfPlay = 5;
+int windowSide = 300;
+int sideOfPlay = 15;
+int numberOfNodeInHL = 50;
 int pointsForFood;
 int maxNumberOfStepBeforeKill;
 
-int numberOfInstances = 30;
+int numberOfInstances = 20;
 
 ArrayList<Snake> bufferSnakes;
 ArrayList<Snake> bestSnakes;
 
 float sideOfASquare;
 
-float timeClock = 500;
+float timeClock = 50;
 //int clock = timeClock;
 int prevMillis = 0;
 
 ArrayList<PVector> foods;
-int numberOfFoods = 20;
+int numberOfFoods = 10;
 EvolutionManager evolManager;
 
 boolean pause = false;
@@ -28,7 +29,6 @@ Snake loadedToAcquarium = null;
 myThread newGeneration;
 
 void setup() {
-  println("PROVS");
   surface.setSize(windowSide, windowSide);
 
   sideOfASquare = windowSide / sideOfPlay;
@@ -38,7 +38,7 @@ void setup() {
   foods = new ArrayList<PVector>();
   PVector tmpFood;
   for (int i = 1; i <= numberOfFoods; i++) {
-    tmpFood = new PVector(Math.round(random(0, sideOfPlay - 1)), Math.round(random(0, sideOfPlay - 1)));
+    tmpFood = new PVector((float)Math.floor(random(0, sideOfPlay - 1)), (float)Math.floor(random(0, sideOfPlay - 1)));
     if (foods.size() == 0) {
       foods.add(tmpFood.copy());
     } else {
@@ -73,7 +73,7 @@ void draw() {
       Snake best = bestSnakes.get(evolManager.actualGeneration);
       best.Draw();
 
-      //println("Generated: " + (bestSnakes.size() - 1) + " Actual: " + evolManager.actualGeneration + " Score: " + Math.round(best.score/pointsForFood));
+      println("Generated: " + (bestSnakes.size() - 1) + " Actual: " + evolManager.actualGeneration + " Score: " + Math.round(best.score/pointsForFood));
 
       if (millis() - prevMillis > timeClock && pause == false) {
         prevMillis = millis();

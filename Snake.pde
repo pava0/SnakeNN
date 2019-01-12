@@ -6,6 +6,7 @@ class Snake implements Comparable { //<>//
   public PVector prevDirection = direction;
   public ArrayList<PVector> body;
   public boolean isDead = false;
+  ArrayList<Integer> topology = new ArrayList <Integer>();
 
   int _gen;
 
@@ -15,6 +16,15 @@ class Snake implements Comparable { //<>//
   public Brain brain;
 
   Snake() {
+
+    topology = new ArrayList<Integer>() {
+      {
+        add((int)Math.pow(sideOfPlay, 2));
+        add(numberOfNodeInHL);
+        add(4);
+      }
+    };
+
     body = new ArrayList<PVector>();
     Initialize();
     InitializeTopology();
@@ -49,24 +59,17 @@ class Snake implements Comparable { //<>//
   }
 
   void InitializeTopology() {
-    brain = new Brain(new ArrayList < Integer >() {
-      {
-        add((int)Math.pow(sideOfPlay, 2));
-        add(numberOfNodeInHL);
-        add(4);
-      }
-    }
-    );
+    brain = new Brain(topology);
   }
 
   void Think() {
     if (isDead == false) {
-      ArrayList<Double> inputs = new ArrayList<Double>();
-      
-      for (int i = 0; i < Math.pow(sideOfPlay, 2); i++) {
-        inputs.add(0d);
+      ArrayList<Float> inputs = new ArrayList<Float>();
+
+      for (int i = 0; i < Math.pow(sideOfPlay, 2) + 1; i++) {
+        inputs.add(0f);
       }
-      
+
       for (PVector p : body) {
         int index = (int)p.x + (int)p.y * sideOfPlay;
         if (p.x < 0 || p.y < 0) {
@@ -74,11 +77,11 @@ class Snake implements Comparable { //<>//
             println("X: " + body.get(i).x + " Y: " + body.get(i).y);
           }
         }
-        inputs.set(index, 0.1d);
+        inputs.set(index, 0.1f);
       }
-      
+
       int _pos = (int)body.get(0).x + (int)body.get(0).y * sideOfPlay;
-      inputs.set(_pos, 1d);
+      inputs.set(_pos, 1f);
 
       food = foods.get(foodEaten);
       if (food.x < 0 || food.y < 0) {
@@ -86,14 +89,24 @@ class Snake implements Comparable { //<>//
       }
 
       int _food = (int)(food.x + food.y * sideOfPlay);
-      inputs.set(_food, 10d);
+      inputs.set(_food, 10f);
+
+      boolean isOnBody = false;
+      for (PVector p : body) {
+        if (PVector.dist(p, food) == 0) {
+          isOnBody = true;
+          break;
+        }
+      }
+      int _val = (isOnBody == true) ? 1 : -1;
+      inputs.set(inputs.size()-1, (float)_val);
 
       brain.initiate(inputs);
       brain.calculate();
 
       //output
       int indexDirection = - 1;
-      Double lastMax = Double.MIN_VALUE;
+      Float lastMax = Float.MIN_VALUE;
       for (int i = 0; i < brain.outputs.size(); i++) {
         if (brain.outputs.get(i) > lastMax) {
           lastMax = brain.outputs.get(i);
@@ -201,8 +214,8 @@ class Snake implements Comparable { //<>//
       brain.inputs.add(_newN);
     }
 
-    brain.outputs = new ArrayList<Double>(s.brain.outputs.size());
-    for (Double n : s.brain.outputs) {
+    brain.outputs = new ArrayList<Float>(s.brain.outputs.size());
+    for (Float n : s.brain.outputs) {
       brain.outputs.add(n);
     }
 

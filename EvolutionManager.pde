@@ -1,6 +1,6 @@
 class EvolutionManager { //<>//
   
-  float softMutationRate = 5f;
+  float softMutationRate = 1f;
   float hardMutationRate = 0.3f;
 
   float pSumWeight = 1f/100f*softMutationRate;

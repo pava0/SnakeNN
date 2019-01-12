@@ -6,7 +6,7 @@ int numberOfNodeInHL = 50;
 int pointsForFood;
 int maxNumberOfStepBeforeKill;
 
-int numberOfInstances = 20;
+int numberOfInstances = 10;
 
 ArrayList<Snake> bufferSnakes;
 ArrayList<Snake> bestSnakes;
@@ -18,7 +18,7 @@ float timeClock = 50;
 int prevMillis = 0;
 
 ArrayList<PVector> foods;
-int numberOfFoods = 10;
+int numberOfFoods = 200;
 EvolutionManager evolManager;
 
 boolean pause = false;
@@ -35,20 +35,7 @@ void setup() {
   pointsForFood = Math.round(sideOfPlay*2);
   maxNumberOfStepBeforeKill = 10 * sideOfPlay;
 
-  foods = new ArrayList<PVector>();
-  PVector tmpFood;
-  for (int i = 1; i <= numberOfFoods; i++) {
-    tmpFood = new PVector((float)Math.floor(random(0, sideOfPlay - 1)), (float)Math.floor(random(0, sideOfPlay - 1)));
-    if (foods.size() == 0) {
-      foods.add(tmpFood.copy());
-    } else {
-      if (PVector.dist(tmpFood, foods.get(foods.size() - 1)) == 0) {
-        i--;
-      } else {
-        foods.add(tmpFood.copy());
-      }
-    }
-  }
+  createFoods();
 
   bestSnakes = new ArrayList<Snake>();
   bufferSnakes = new ArrayList<Snake>();
@@ -63,6 +50,23 @@ void setup() {
   newGeneration.start();
 
   textAlign(CENTER);
+}
+
+void createFoods() {
+  foods = new ArrayList<PVector>();
+  PVector tmpFood;
+  for (int i = 1; i <= numberOfFoods; i++) {
+    tmpFood = new PVector((float)Math.floor(random(0, sideOfPlay - 1)), (float)Math.floor(random(0, sideOfPlay - 1)));
+    if (foods.size() == 0) {
+      foods.add(tmpFood.copy());
+    } else {
+      if (PVector.dist(tmpFood, foods.get(foods.size() - 1)) == 0) {
+        i--;
+      } else {
+        foods.add(tmpFood.copy());
+      }
+    }
+  }
 }
 
 void draw() {
@@ -92,8 +96,6 @@ void draw() {
     }
   }
 
-
-
   if (toAcquarium == true) {
     String[] lines = loadStrings("snakeSelected.txt");
 
@@ -121,7 +123,7 @@ class myThread extends Thread {
     }
   }
   void execute() {
-    while (evolManager.generation < evolManager.maxGenerations) {
+    while (/*evolManager.generation < evolManager.maxGenerations*/ true) {
       while (getNumberOfCreaturesAlive(bufferSnakes) != 0) {
         for (int i = 0; i < bufferSnakes.size(); i++) {
           bufferSnakes.get(i).Think();
@@ -129,6 +131,9 @@ class myThread extends Thread {
         }
       }
       evolManager.nextGeneration();
+      //if (evolManager.generation % 200 == 0) {
+      //  createFoods();
+      //}
     }
   }
   boolean isActive() {
@@ -151,32 +156,61 @@ int getNumberOfCreaturesAlive(ArrayList<Snake> _snakes) {
   return nCreatAlive;
 }
 
-//void mouseClicked() {
-//  if (mouseButton == LEFT) {
-//    int x = (int)Math.floor(mouseX / sideOfASingleInstance);
-//    int y = (int)Math.floor(mouseY / sideOfASingleInstance);
+void mouseClicked() {
+  if (mouseButton == LEFT) {
+    Snake best = bestSnakes.get(evolManager.actualGeneration);
 
-//    int index = x + numberOfInstances * y;
+    Brain selected = best.brain;
 
-//    if (actualSnakes.get(index) != null) {
-//      Brain selected = actualSnakes.get(index).brain;
+    ArrayList<String> toSave = new ArrayList<String>();
 
-//      ArrayList<String> toSave = new ArrayList<String>();
+    toSave.add(selected.inputs.size() + "");
+    toSave.add(selected.hiddenLayers.size() + "");
+    for (hiddenLayer hl : selected.hiddenLayers) {
+      toSave.add(hl.nodes.size() + "");
+    }
 
-//      for (Node n : selected.inputs) {
-//        toSave.addAll(n.getStringsValue());
-//      }
+    for (Node n : selected.inputs) {
+      toSave.addAll(n.getStringsValue());
+    }
 
-//      for (hiddenLayer hl : selected.hiddenLayers) {
-//        for (Node n : hl.nodes) {
-//          toSave.addAll(n.getStringsValue());
-//        }
-//      }
+    for (hiddenLayer hl : selected.hiddenLayers) {
+      for (Node n : hl.nodes) {
+        toSave.addAll(n.getStringsValue());
+      }
+    }
 
-//      saveStrings("snakeSelected.txt", toSave.toArray(new String[toSave.size()]));
-//    }
-//  }
-//}
+    saveStrings("snakeSelected.txt", toSave.toArray(new String[toSave.size()]));
+    println("CREATURE SAVED");
+  } else if (mouseButton == RIGHT) {
+    //  String[] lines = loadStrings("snakeSelected.txt");
+
+    //  Snake _new = new Snake();
+
+    //  int numberInputs = Integer.parseInt(lines[0]);
+    //  int numberOfHL = Integer.parseInt(lines[1]);
+    //  ArrayList<Integer> nodesInHLS = new ArrayList<Integer>();
+    //  for (int i = 0; i < numberOfHL; i++) {
+    //    nodesInHLS.add(Integer.parseInt(lines[2+i]));
+    //  }
+
+    //  _new.topology = new ArrayList<Integer>();
+    //  _new.topology.add(numberInputs);
+    //  for (int i = 0; i < Integer.parseInt(lines[1]); i++) {
+    //    _new.topology.add(Integer.parseInt(lines[1+i]));
+    //  }
+    //  _new.topology.add(4);
+
+    //  int beginInputs = 2 + Integer.parseInt(lines[2]);
+    //  Node n = new Node();
+    //  for (int i = 0; i < numberInputs; i++) {
+    //    n.value = Float.parseFloat((lines[beginInputs]));
+    //    for (int j = 0; j < Integer.parseInt(lines[2]); i++) {
+    //      n.weights.add(Float.parseFloat((lines[
+    //    }
+    //  }
+  }
+}
 
 void keyPressed() {
   if (key == '+') {
@@ -203,29 +237,5 @@ void keyPressed() {
     pause = (pause == true) ? false : true;
   } else if (key == 'j') {
     toAcquarium = (toAcquarium == false) ? true : false;
-  } else if (key == 'o') {
-    if (bestSnakes.size() - 1 - evolManager.actualGeneration >= 1) {
-      evolManager.actualGeneration += 1;
-    } else {
-      evolManager.actualGeneration = bestSnakes.size() - 1;
-    }
-  } else if (key == 'i') {
-    if (evolManager.actualGeneration >= 1) {
-      evolManager.actualGeneration -= 1;
-    } else {
-      evolManager.actualGeneration = 0;
-    }
-  } else if (key == 'O') {
-    if (bestSnakes.size() - 1 - evolManager.actualGeneration >= 10) {
-      evolManager.actualGeneration += 10;
-    } else {
-      evolManager.actualGeneration = bestSnakes.size() - 1;
-    }
-  } else if (key == 'I') {
-    if (evolManager.actualGeneration >= 10) {
-      evolManager.actualGeneration -= 10;
-    } else {
-      evolManager.actualGeneration = 0;
-    }
   }
 }

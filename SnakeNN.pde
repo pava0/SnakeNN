@@ -183,33 +183,33 @@ void mouseClicked() {
     saveStrings("snakeSelected.txt", toSave.toArray(new String[toSave.size()]));
     println("CREATURE SAVED");
   } else if (mouseButton == RIGHT) {
-    //  String[] lines = loadStrings("snakeSelected.txt");
+  //    String[] lines = loadStrings("snakeSelected.txt");
 
-    //  Snake _new = new Snake();
+  //    Snake _new = new Snake();
 
-    //  int numberInputs = Integer.parseInt(lines[0]);
-    //  int numberOfHL = Integer.parseInt(lines[1]);
-    //  ArrayList<Integer> nodesInHLS = new ArrayList<Integer>();
-    //  for (int i = 0; i < numberOfHL; i++) {
-    //    nodesInHLS.add(Integer.parseInt(lines[2+i]));
-    //  }
+  //    int numberInputs = Integer.parseInt(lines[0]);
+  //    int numberOfHL = Integer.parseInt(lines[1]);
+  //    ArrayList<Integer> nodesInHLS = new ArrayList<Integer>();
+  //    for (int i = 0; i < numberOfHL; i++) {
+  //      nodesInHLS.add(Integer.parseInt(lines[2+i]));
+  //    }
 
-    //  _new.topology = new ArrayList<Integer>();
-    //  _new.topology.add(numberInputs);
-    //  for (int i = 0; i < Integer.parseInt(lines[1]); i++) {
-    //    _new.topology.add(Integer.parseInt(lines[1+i]));
-    //  }
-    //  _new.topology.add(4);
+  //    _new.topology = new ArrayList<Integer>();
+  //    _new.topology.add(numberInputs);
+  //    for (int i = 0; i < Integer.parseInt(lines[1]); i++) {
+  //      _new.topology.add(Integer.parseInt(lines[1+i]));
+  //    }
+  //    _new.topology.add(4);
 
-    //  int beginInputs = 2 + Integer.parseInt(lines[2]);
-    //  Node n = new Node();
-    //  for (int i = 0; i < numberInputs; i++) {
-    //    n.value = Float.parseFloat((lines[beginInputs]));
-    //    for (int j = 0; j < Integer.parseInt(lines[2]); i++) {
-    //      n.weights.add(Float.parseFloat((lines[
-    //    }
-    //  }
-  }
+  //    int beginInputs = 2 + Integer.parseInt(lines[1]);
+  //    Node n = new Node();
+  //    for (int i = 0; i < numberInputs; i++) {
+  //      n.value = Float.parseFloat((lines[beginInputs + i * ]));
+  //      for (int j = 0; j < Integer.parseInt(lines[2]); i++) {
+  //        n.weights.add(Float.parseFloat((lines[
+  //      }
+  //    }
+  //}
 }
 
 void keyPressed() {

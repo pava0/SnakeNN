@@ -28,6 +28,7 @@ Snake loadedToAcquarium = null;
 myThread newGeneration;
 
 void setup() {
+  println("PROVS");
   surface.setSize(windowSide, windowSide);
 
   sideOfASquare = windowSide / sideOfPlay;

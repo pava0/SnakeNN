@@ -1,4 +1,4 @@
-class Brain { //<>//
+class Brain {
 
   ArrayList <Node> inputs; 
   ArrayList <Float> outputs; 
@@ -16,7 +16,7 @@ class Brain { //<>//
     for (int layer = 0; layer < topology.size(); layer++) {
       if (layer == 0) {//inputs
         for (int i = 0; i < topology.get(layer) + 1; i++) { //+1 = bias
-          inputs.add(new Node(topology.get(layer + 1)));
+          inputs.add(new Node(topology.get(layer + 1)+1));
         }
         inputs.get(inputs.size()-1).value = 1f;
       } else if (layer == topology.size() - 1) {
@@ -24,7 +24,11 @@ class Brain { //<>//
           outputs.add(0f);
         }
       } else {
-        hiddenLayers.add(new hiddenLayer(topology.get(layer) + 1, topology.get(layer + 1)));
+        if (layer == topology.size() - 2) {
+          hiddenLayers.add(new hiddenLayer(topology.get(layer) + 1, topology.get(layer + 1)));
+        } else {
+          hiddenLayers.add(new hiddenLayer(topology.get(layer) + 1, topology.get(layer + 1) + 1));
+        }
       }
     }
   }
@@ -137,14 +141,14 @@ class Node {
       weights.add(f);
     }
   }
-  
+
   public ArrayList<String> getStringsValue() {
     ArrayList<String> string = new ArrayList<String>();
-    
-    for(Float f : weights) {
+
+    for (Float f : weights) {
       string.add(f.toString());
     }
-    
+
     return string;
   }
 }

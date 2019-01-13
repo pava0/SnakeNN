@@ -28,7 +28,7 @@ class EvolutionManager { //<>//
   }
 
   public void killWorst() {
-    for (int i = 0; i < (int)Math.pow(numberOfInstances, 2) - (int)Math.pow(numberOfInstances, 2)*0.1f; i++) {
+    for (int i = 0; i < (int)Math.pow(numberOfInstances, 2) - /*(int)Math.pow(numberOfInstances, 2)*0.1f*/ 1; i++) {
       bufferSnakes.remove(bufferSnakes.size() - 1);
     }
   }

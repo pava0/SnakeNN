@@ -1,8 +1,8 @@
-import java.util.*; //<>//
+import java.util.*;
 
 int windowSide = 300;
-int sideOfPlay = 5;
-int numberOfNodeInHL = 10;
+int sideOfPlay = 3;
+int numberOfNodeInHL = 5;
 int pointsForFood;
 int maxNumberOfStepBeforeKill;
 
@@ -97,10 +97,18 @@ void draw() {
   }
 
   if (toAcquarium == true) {
-    String[] lines = loadStrings("snakeSelected.txt");
+    if (loadedToAcquarium != null) {
+      loadedToAcquarium.Draw();
+      if (millis() - prevMillis > timeClock && pause == false) {
+        prevMillis = millis();
 
-    if (lines != null) {
-      ArrayList<String> toLoad = new ArrayList<String>(Arrays.asList(lines));
+        loadedToAcquarium.Think();
+        loadedToAcquarium.Move();
+      }
+
+      if (loadedToAcquarium.isDead == true) {
+        loadedToAcquarium.Initialize();
+      }
     }
   }
 }
@@ -156,63 +164,94 @@ int getNumberOfCreaturesAlive(ArrayList<Snake> _snakes) {
   return nCreatAlive;
 }
 
-void mouseClicked() {
-  if (mouseButton == LEFT) {
-    Snake best = bestSnakes.get(evolManager.actualGeneration);
+void Save() {
+  Snake best = bestSnakes.get(evolManager.actualGeneration);
 
-    Brain selected = best.brain;
+  Brain selected = best.brain;
 
-    ArrayList<String> toSave = new ArrayList<String>();
+  ArrayList<String> toSave = new ArrayList<String>();
 
-    //toSave.add(selected.inputs.size() + "");
-    //toSave.add(selected.hiddenLayers.size() + "");
-    //for (hiddenLayer hl : selected.hiddenLayers) {
-    //  toSave.add(hl.nodes.size() + "");
-    //}
+  toSave.add(selected.inputs.size() + "");
+  toSave.add(selected.hiddenLayers.size() + "");
+  for (hiddenLayer hl : selected.hiddenLayers) {
+    toSave.add(hl.nodes.size() + "");
+  }
 
-    for (Node n : selected.inputs) {
+  for (Node n : selected.inputs) {
+    toSave.addAll(n.getStringsValue());
+  }
+
+  for (hiddenLayer hl : selected.hiddenLayers) {
+    for (Node n : hl.nodes) {
       toSave.addAll(n.getStringsValue());
     }
+  }
 
-    //for (hiddenLayer hl : selected.hiddenLayers) {
-    //  for (Node n : hl.nodes) {
-    //    toSave.addAll(n.getStringsValue());
-    //  }
-    //}
+  saveStrings("snakeSelected.txt", toSave.toArray(new String[toSave.size()]));
+  println("CREATURE SAVED");
+}
 
-    saveStrings("snakeSelected.txt", toSave.toArray(new String[toSave.size()]));
-    println("CREATURE SAVED");
-  } else if (mouseButton == RIGHT) {
-    String[] lines = loadStrings("snakeSelected.txt");
+void Load() {
+  String[] lines = loadStrings("snakeSelected.txt");
 
-    Snake _new = new Snake();
+  Snake _new = new Snake();
 
-    int numberInputs = Integer.parseInt(lines[0]);
-    int numberOfHL = Integer.parseInt(lines[1]);
-    ArrayList<Integer> nodesInHLS = new ArrayList<Integer>();
-    for (int i = 0; i < numberOfHL; i++) {
-      nodesInHLS.add(Integer.parseInt(lines[2+i]));
+  int numberInputs = Integer.parseInt(lines[0]);
+  int numberOfHL = Integer.parseInt(lines[1]);
+  ArrayList<Integer> nodesInHLS = new ArrayList<Integer>();
+  for (int i = 0; i < numberOfHL; i++) {
+    nodesInHLS.add(Integer.parseInt(lines[2+i]));
+  }
+
+  _new.topology = new ArrayList<Integer>();
+  _new.topology.add(numberInputs);
+  for (int hlSize : nodesInHLS) {
+    _new.topology.add(hlSize-1);
+  }
+  _new.topology.add(4);
+  _new.InitializeTopology();
+
+  lines = subset(lines, 2 + nodesInHLS.size());
+  Node _n;
+  
+  _new.brain.inputs.clear();
+  //inputs
+  for (int n = 0; n < numberInputs; n++) {
+    _n = new Node();
+    _n.weights = new ArrayList<Float>();
+    for (int i = 0; i < nodesInHLS.get(0); i++) {
+      _n.weights.add(Float.parseFloat(lines[i]));
     }
-
-    _new.topology = new ArrayList<Integer>();
-    _new.topology.add(numberInputs);
-    for (int hlSize : nodesInHLS) {
-      _new.topology.add(hlSize);
-    }
-    _new.topology.add(4);
-
-    lines = subset(lines, 3);
-    Node _n;
-    for (int n = 0; n < numberInputs; n++) {
+    _new.brain.inputs.add(_n);
+    lines = subset(lines, nodesInHLS.get(0));
+  }
+  //hidden layers
+  for (int hl = 0; hl < numberOfHL; hl++) { //<>//
+    _new.brain.hiddenLayers.get(hl).nodes.clear();
+    for (int n = 0; n < nodesInHLS.get(hl); n++) {
       _n = new Node();
       _n.weights = new ArrayList<Float>();
-      for (int i = 0; i < nodesInHLS.get(0); i++) {
+      int numberWeights;
+      if (nodesInHLS.size() - 1 == hl) {
+        numberWeights = _new.topology.get(_new.topology.size() - 1);
+      } else {
+        numberWeights = nodesInHLS.get(1+hl) - 1;
+      }
+      for (int i = 0; i < numberWeights; i++) {
         _n.weights.add(Float.parseFloat(lines[i]));
       }
-      _new.brain.inputs.get(n).clone(_n);
-      lines = subset(lines, nodesInHLS.get(0));
+      ((hiddenLayer)_new.brain.hiddenLayers.get(hl)).nodes.add(_n);
+      lines = subset(lines, numberWeights);
     }
-    print(_new.brain.inputs.size()); //<>//
+  }
+  loadedToAcquarium = _new;
+  loadedToAcquarium.Initialize();
+}
+
+
+void mouseClicked() {
+  if (mouseButton == LEFT) {
+  } else if (mouseButton == RIGHT) {
   }
 }
 
@@ -241,5 +280,9 @@ void keyPressed() {
     pause = (pause == true) ? false : true;
   } else if (key == 'j') {
     toAcquarium = (toAcquarium == false) ? true : false;
+  } else if (key == 'y') { 
+    Save();
+  } else if (key == 'i') {
+    Load();
   }
 }

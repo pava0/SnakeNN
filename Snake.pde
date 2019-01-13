@@ -21,6 +21,7 @@ class Snake implements Comparable {
       {
         add((int)Math.pow(sideOfPlay, 2));
         add(numberOfNodeInHL);
+        add(2);
         add(4);
       }
     };

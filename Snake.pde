@@ -1,4 +1,4 @@
-class Snake implements Comparable { //<>//
+class Snake implements Comparable {
   public PVector food;
   public int foodEaten;
   public int stepsTaken;

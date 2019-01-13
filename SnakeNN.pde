@@ -1,8 +1,8 @@
-import java.util.*;
+import java.util.*; //<>//
 
 int windowSide = 300;
-int sideOfPlay = 15;
-int numberOfNodeInHL = 50;
+int sideOfPlay = 5;
+int numberOfNodeInHL = 10;
 int pointsForFood;
 int maxNumberOfStepBeforeKill;
 
@@ -164,52 +164,56 @@ void mouseClicked() {
 
     ArrayList<String> toSave = new ArrayList<String>();
 
-    toSave.add(selected.inputs.size() + "");
-    toSave.add(selected.hiddenLayers.size() + "");
-    for (hiddenLayer hl : selected.hiddenLayers) {
-      toSave.add(hl.nodes.size() + "");
-    }
+    //toSave.add(selected.inputs.size() + "");
+    //toSave.add(selected.hiddenLayers.size() + "");
+    //for (hiddenLayer hl : selected.hiddenLayers) {
+    //  toSave.add(hl.nodes.size() + "");
+    //}
 
     for (Node n : selected.inputs) {
       toSave.addAll(n.getStringsValue());
     }
 
-    for (hiddenLayer hl : selected.hiddenLayers) {
-      for (Node n : hl.nodes) {
-        toSave.addAll(n.getStringsValue());
-      }
-    }
+    //for (hiddenLayer hl : selected.hiddenLayers) {
+    //  for (Node n : hl.nodes) {
+    //    toSave.addAll(n.getStringsValue());
+    //  }
+    //}
 
     saveStrings("snakeSelected.txt", toSave.toArray(new String[toSave.size()]));
     println("CREATURE SAVED");
   } else if (mouseButton == RIGHT) {
-  //    String[] lines = loadStrings("snakeSelected.txt");
+    String[] lines = loadStrings("snakeSelected.txt");
 
-  //    Snake _new = new Snake();
+    Snake _new = new Snake();
 
-  //    int numberInputs = Integer.parseInt(lines[0]);
-  //    int numberOfHL = Integer.parseInt(lines[1]);
-  //    ArrayList<Integer> nodesInHLS = new ArrayList<Integer>();
-  //    for (int i = 0; i < numberOfHL; i++) {
-  //      nodesInHLS.add(Integer.parseInt(lines[2+i]));
-  //    }
+    int numberInputs = Integer.parseInt(lines[0]);
+    int numberOfHL = Integer.parseInt(lines[1]);
+    ArrayList<Integer> nodesInHLS = new ArrayList<Integer>();
+    for (int i = 0; i < numberOfHL; i++) {
+      nodesInHLS.add(Integer.parseInt(lines[2+i]));
+    }
 
-  //    _new.topology = new ArrayList<Integer>();
-  //    _new.topology.add(numberInputs);
-  //    for (int i = 0; i < Integer.parseInt(lines[1]); i++) {
-  //      _new.topology.add(Integer.parseInt(lines[1+i]));
-  //    }
-  //    _new.topology.add(4);
+    _new.topology = new ArrayList<Integer>();
+    _new.topology.add(numberInputs);
+    for (int hlSize : nodesInHLS) {
+      _new.topology.add(hlSize);
+    }
+    _new.topology.add(4);
 
-  //    int beginInputs = 2 + Integer.parseInt(lines[1]);
-  //    Node n = new Node();
-  //    for (int i = 0; i < numberInputs; i++) {
-  //      n.value = Float.parseFloat((lines[beginInputs + i * ]));
-  //      for (int j = 0; j < Integer.parseInt(lines[2]); i++) {
-  //        n.weights.add(Float.parseFloat((lines[
-  //      }
-  //    }
-  //}
+    lines = subset(lines, 3);
+    Node _n;
+    for (int n = 0; n < numberInputs; n++) {
+      _n = new Node();
+      _n.weights = new ArrayList<Float>();
+      for (int i = 0; i < nodesInHLS.get(0); i++) {
+        _n.weights.add(Float.parseFloat(lines[i]));
+      }
+      _new.brain.inputs.get(n).clone(_n);
+      lines = subset(lines, nodesInHLS.get(0));
+    }
+    print(_new.brain.inputs.size()); //<>//
+  }
 }
 
 void keyPressed() {
